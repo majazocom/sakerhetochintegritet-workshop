@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onda domänen</title>
+</head>
+<body>
+    <h1>Simulering av CSRF-attack</h1>
+    <p>Om du är inloggad på http://localhost:5173, försök klicka på knappen nedan:</p>
+
+    <form action="http://localhost:4000/login" method="POST">
+        <input type="hidden" name="dummy" value="data">
+        <button type="submit">Klicka här för att vinna en iPhone!</button>
+    </form>
+</body>
+</html>
