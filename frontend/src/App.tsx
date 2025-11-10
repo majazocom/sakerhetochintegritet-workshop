@@ -1,7 +1,34 @@
-import React, { useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import DOMPurify from "dompurify";
 
 const API_BASE_URL = 'http://localhost:4000';
+
+// skapa context för att hålla reda på om spårning är tillåten
+interface ConsentContextType {
+  hasConsent: boolean;
+  giveConsent: () => void;
+};
+
+const ConsentContext = createContext<ConsentContextType>({
+  hasConsent: false,
+  giveConsent: () => { }
+});
+
+const ConsentProvider = ({ children }: { children: React.ReactNode }) => {
+  const [hasConsent, setHasConsent] = useState<boolean>(false);
+
+  const giveConsent = useCallback(() => {
+    setHasConsent(true);
+    // i ett verkligt scenario skulle skript laddas här
+    console.log("samtycke givet! Externa skript kan laddas!");
+  }, []);
+
+  return (
+    <ConsentContext.Provider value={{ hasConsent, giveConsent }}>
+      {children}
+    </ConsentContext.Provider>
+  )
+};
 
 const XSSComponent = () => {
   const [input, setInput] = useState<string>('Skriv in något här...');
@@ -43,6 +70,7 @@ const App = () => {
   const [userName, setUserName] = useState<string>('');
   const [userPassword, setUserPassword] = useState<string>('');
   const [status, setStatus] = useState<string>("Väntar på inloggning...");
+  const { hasConsent, giveConsent } = useContext(ConsentContext);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,13 +111,26 @@ const App = () => {
         <button type="submit">Logga in</button>
       </form>
       <XSSComponent />
+
+      <section>
+        <h2>GDPR Samtycke</h2>
+        <p>Spårningssamtycke: {hasConsent ? "Givet" : "Ej givet"}</p>
+        <button
+          onClick={giveConsent}
+          disabled={hasConsent}
+        >
+          Ge samtycke
+        </button>
+      </section>
     </main>
   )
 }
 
 // slå ihop allt
 const RootApp = () => (
-  <App />
+  <ConsentProvider>
+    <App />
+  </ConsentProvider>
 );
 
 export default RootApp;
